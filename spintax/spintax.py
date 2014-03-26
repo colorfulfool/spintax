@@ -28,95 +28,94 @@ import re
 import random
 from string import Template
 
-class Spintax:
-	def get_spintax(self, list_to_spin, bracket_list, delimiter):
-		spun_string = ''
+def get_spintax(list_to_spin, bracket_list, delimiter='|'):
+	spun_string = ''
 
-		# Ensure method arguments are lists, then build the spun string
-		try:
-			if (isinstance(list_to_spin, list) and isinstance(bracket_list, list) and isinstance(delimiter, basestring)):
-				for item in list_to_spin:
-					if (item == list_to_spin[0]):
-						spun_string += str(bracket_list[0]) + str(item) + delimiter
-					elif (item != list_to_spin[-1]):
-						spun_string += str(item) + delimiter
-					else:
-						spun_string += str(item) + str(bracket_list[1])
+	# Ensure method arguments are lists, then build the spun string
+	try:
+		if (isinstance(list_to_spin, list) and isinstance(bracket_list, list) and isinstance(delimiter, basestring)):
+			for item in list_to_spin:
+				if (item == list_to_spin[0]):
+					spun_string += str(bracket_list[0]) + str(item) + delimiter
+				elif (item != list_to_spin[-1]):
+					spun_string += str(item) + delimiter
+				else:
+					spun_string += str(item) + str(bracket_list[1])
 
-			return spun_string
+		return spun_string
 
-		except TypeError:
-			raise 'Arguments should contain two lists and a string.'
+	except TypeError:
+		raise 'Arguments should contain two lists and a string.'
 
-	def get_spun_links(self, list_to_spin, links_to_spin, bracket_list, delimiter, link_type):
-		spun_string = self.get_spintax(list_to_spin, bracket_list, delimiter)
-		spun_link = ''
+def get_spun_links(list_to_spin, links_to_spin, bracket_list, delimiter, link_type):
+	spun_string = get_spintax(list_to_spin, bracket_list, delimiter)
+	spun_link = ''
 
-		# Ensure method arguments are lists, then build the spun strings
-		try:
-			if (isinstance(links_to_spin, list) and isinstance(link_type, basestring)):
-				for item in links_to_spin:
-					if (item == links_to_spin[0]):
-						spun_link += str(bracket_list[0]) + str(item) + delimiter
-					elif (item != links_to_spin[-1]):
-						spun_link += str(item) + delimiter
-					else:
-						spun_link += str(item) + str(bracket_list[1])
+	# Ensure method arguments are lists, then build the spun strings
+	try:
+		if (isinstance(links_to_spin, list) and isinstance(link_type, basestring)):
+			for item in links_to_spin:
+				if (item == links_to_spin[0]):
+					spun_link += str(bracket_list[0]) + str(item) + delimiter
+				elif (item != links_to_spin[-1]):
+					spun_link += str(item) + delimiter
+				else:
+					spun_link += str(item) + str(bracket_list[1])
 
-			return self.get_link(link_type, spun_string, spun_link)
+		return get_link(link_type, spun_string, spun_link)
 
-		except TypeError:
-			raise 'Arguments should contain three lists and two strings.'
+	except TypeError:
+		raise 'Arguments should contain three lists and two strings.'
 
-	# Unspin spintax
-	def unspin(self, spun_string, delimiter):
-		while True:
-			spun_string, n = re.subn('{([^{}]*)}',
-						   lambda m: random.choice(m.group(1).split(delimiter)),
-						   spun_string)
-			if n == 0:
-				break
+# Unspin spintax
+def unspin(spun_string, delimiter='|'):
+	while True:
+		spun_string, n = re.subn('{([^{}]*)}',
+					   lambda m: random.choice(m.group(1).split(delimiter)),
+					   spun_string)
+		if n == 0:
+			break
 
-		return spun_string.strip()
+	return spun_string.strip()
 
-	# A dictionary of all the types of brackets
-	def get_bracket_type(self, bracket_type_name):
-		bracket_types = {
-							'curly': ['{', '}'],
-							'angle': ['<', '>'],
-							'square': ['[', ']'],
-							'none': ['', '']
-						}
+# A dictionary of all the types of brackets
+def get_bracket_type(bracket_type_name):
+	bracket_types = {
+						'curly': ['{', '}'],
+						'angle': ['<', '>'],
+						'square': ['[', ']'],
+						'none': ['', '']
+					}
 
-		try:
-			return bracket_types[bracket_type_name]
+	try:
+		return bracket_types[bracket_type_name]
 
-		except:
-			raise 'There is no bracket type by that name.'
+	except:
+		raise 'There is no bracket type by that name.'
 
-	# Convert a spun string to be URL friendly
-	def get_url_version(self, spun_string):
-		try:
-			spun_string = spun_string.lower()
-			spun_string = re.sub(" ", "-", spun_string)
+# Convert a spun string to be URL friendly
+def get_url_version(spun_string):
+	try:
+		spun_string = spun_string.lower()
+		spun_string = re.sub(" ", "-", spun_string)
 
-			return spun_string
+		return spun_string
 
-		except:
-			raise 'There was an error with the passed spun string, Be sure to only include alpha-numeric characters and spaces.'
+	except:
+		raise 'There was an error with the passed spun string, Be sure to only include alpha-numeric characters and spaces.'
 
-	# A dictionary of all the link types
-	# Returns a formatted link of the passed link type
-	def get_link(self, link_type, string, link):
-		link_types = {
-						'html': ['angle', '${start}a href="${url}"${end}${anchor}${start}/a${end}'],
-						'bbcode': ['square', '${start}url=${url}${end}${anchor}${start}/url${end}'],
-						'scrapebox': ['none', '${url} ${anchor}'],
-						'senuke': ['none', '${url}##${anchor}']
-					 }
+# A dictionary of all the link types
+# Returns a formatted link of the passed link type
+def get_link(link_type, string, link):
+	link_types = {
+					'html': ['angle', '${start}a href="${url}"${end}${anchor}${start}/a${end}'],
+					'bbcode': ['square', '${start}url=${url}${end}${anchor}${start}/url${end}'],
+					'scrapebox': ['none', '${url} ${anchor}'],
+					'senuke': ['none', '${url}##${anchor}']
+				 }
 
-		link_type = link_types[link_type]
-		brackets = self.get_bracket_type(link_type[0])
-		formatted_link = Template(link_type[1])
+	link_type = link_types[link_type]
+	brackets = get_bracket_type(link_type[0])
+	formatted_link = Template(link_type[1])
 
-		return formatted_link.substitute(start=brackets[0], end=brackets[1], anchor=string, url=link)
+	return formatted_link.substitute(start=brackets[0], end=brackets[1], anchor=string, url=link)
