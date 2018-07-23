@@ -67,16 +67,28 @@ def get_spun_links(list_to_spin, links_to_spin, bracket_list, delimiter, link_ty
 	except TypeError:
 		raise 'Arguments should contain three lists and two strings.'
 
+import functools
+
 # Unspin spintax
-def unspin(spun_string, delimiter='|'):
+def unspin(spun_string, cache):
 	while True:
 		spun_string, n = re.subn('{([^{}]*)}',
-					   lambda m: random.choice(m.group(1).split(delimiter)),
+					   functools.partial(perform_substitution, cache),
 					   spun_string)
 		if n == 0:
 			break
 
 	return spun_string.strip()
+
+def perform_substitution(cache, match):
+	expression = match.group(0)
+	evaluation = random.choice(match.group(1).split('|'))
+
+	if expression in cache:
+		return cache[expression]
+	else:
+		cache[expression] = evaluation
+		return evaluation
 
 # A dictionary of all the types of brackets
 def get_bracket_type(bracket_type_name):
